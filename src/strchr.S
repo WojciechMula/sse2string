@@ -1,5 +1,5 @@
 /*
- *  SSE2 string routines library, $Revision: 1.4 $, $Date: 2007-08-21 21:53:54 $
+ *  SSE2 string routines library, $Revision: 1.5 $, $Date: 2007-08-21 23:01:24 $
  *  implementation of strchr
  *
  *  Author: Wojciech Mu³a
@@ -25,21 +25,19 @@
 .type   sse2_strchr, @function
 .align  32
 sse2_strchr:
-         # eax = adres, edx = bajt
-         mov     4(%esp),  %eax     # get address
          pxor     %xmm0,   %xmm0    # xmm0 := packed_byte(0x00)
 
 #ifdef USE_IMUL
-         movzbl   4(%esp),     %eax
+         movzbl   8(%esp),     %eax
          imul     $0x01010101, %eax 
          movd     %eax,    %xmm1
          pshufd   $0x00,   %xmm1, %xmm1
 #else
 #ifdef USE_SSE3
-         movd     4(%ssp), %xmm1
+         movd     8(%esp), %xmm1
          pshufb   %xmm0,   %xmm1
 #else
-         movb     4(%esp), %al      # xmm1 := packed_byte(%al)
+         movzbl   8(%esp), %eax     # xmm1 := packed_byte(%al)
          mov      %al,     %ah
          mov      %eax,    %ecx
          shl      $16,     %ecx
@@ -49,7 +47,7 @@ sse2_strchr:
 #endif // USE_SSE3
 #endif // USE_IMUL
 
-         mov      8(%esp), %eax     # load address
+         mov      4(%esp), %eax     # load address
          test     $0xf,    %eax     # is address aligned at 16-byte boundary?
          jz       .L_aligned16
 
@@ -94,7 +92,7 @@ sse2_strchr:
                   jz       .L_mainloop
 
          # calculate length
-         pmovmskb %xmm0,  %ecx
+         pmovmskb %xmm2,  %ecx
          test     %ecx,   %ecx
          jz       .L_result16
          .L_result32:
