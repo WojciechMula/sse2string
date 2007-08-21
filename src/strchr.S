@@ -1,3 +1,14 @@
+/*
+ *  SSE2 string routines library, $Revision: 1.3 $, $Date: 2007-08-21 21:53:16 $
+ *  implementation of strchr
+ *
+ *  Author: Wojciech Mu³a
+ *  e-mail: wojciech_mula@poczta.onet.pl
+ *  project page: http://www.republika.pl/wmula/sse_str/
+ *
+ *  License: BSD
+ */
+
 .text
 
 .macro FIND_POSITION16 # locate null byte or char in a sequence of 16 bytes
@@ -15,20 +26,21 @@
 .align  32
 sse2_strchr:
 	# eax = adres, edx = bajt
-	#mov    4(%esp),  %eax	# get address
+	mov     4(%esp),  %eax	# get address
 	pxor     %xmm0,   %xmm0	# xmm0 := packed_byte(0x00)
 
 #ifdef USE_IMUL
-         andl     $0x000000ff, %eax
+         movzbl   4(%esp),     %eax
          imul     $0x01010101, %eax 
          movd     %eax,    %xmm1
          pshufd   $0x00,   %xmm1, %xmm1
 #else
 #ifdef USE_SSE3
-         movd     %eax,    %xmm1
+         movd     4(%ssp), %xmm1
          pshufb   %xmm0,   %xmm1
 #else
-	mov      %al,     %ah      # xmm1 := packed_byte(%al)
+         movb     4(%esp), %al      # xmm1 := packed_byte(%al)
+	mov      %al,     %ah
 	mov      %eax,    %ecx
 	shl      $16,     %ecx
          or       %ecx,    %eax
@@ -36,6 +48,10 @@ sse2_strchr:
          pshufd   $0x00,   %xmm1, %xmm1
 #endif // USE_SSE3
 #endif // USE_IMUL
+
+         mov      8(%esp), %eax     # load address
+         test     $0xf,    %eax     # is address aligned at 16-byte boundary?
+         jz       .L_aligned16
 
 	.L_unaligned:
 		mov      %eax,   %edx
@@ -90,7 +106,7 @@ sse2_strchr:
 		ret
 	.L_result16:
 		bsf    %edx, %edx
-		lea    -32(%eax, %edx), %edx
+		lea    -16(%eax, %edx), %edx
                   xor    %eax, %eax
                   cmpb   $0x00, (%edx)
                   cmovne %edx, %eax
