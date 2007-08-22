@@ -27,7 +27,7 @@
          pcmpeqb  %xmm0,   %xmm1    # equal chars
          pcmpeqb  %xmm2,   %xmm3
          pcmpeqb  %xmm7,   %xmm0    # null bytes
-         pcmpeqb  %xmm7,   %xmm1
+         pcmpeqb  %xmm7,   %xmm2
          pandn    %xmm1,   %xmm0    # join results
          pandn    %xmm3,   %xmm2
          pand     %xmm0,   %xmm2
@@ -51,19 +51,24 @@ We consider just offset on a page, i.e. the lowest 12 bits of addresses:
 	+-----------+-----------+---------+---------+
 
 Function handle several cases:
-1. .L_aligned32_32 (case I): 
+
+1. L_aligned32_32 (case I): 
    both offsets at 32-byte boundary
-2. .L_aligned16_32 (cases F, H):
+
+2. L_aligned16_32 (cases F, H):
    one offset at 16-byte boundary, another at 32-byte boundary
-3. .L_aligned16_16 (case E):
+
+3. L_aligned16_16 (case E):
    both offsets at 16-byte boundary -- we process just one 16-byte
    chunk, then offsets are aligned at 32-byte boundary, and thus
    case I is reached
-4. .L_offsets_equal:
+
+4. L_offsets_equal:
    both offsets are unaligned or aligned at 16-byte boundary,
    but equal -- we can proces unaligned bytes, then case E is
    reached, and finally case I is processed
-5. .L_unaligned (cases A, B, C, D, G):
+
+5. L_unaligned (cases A, B, C, D, G):
    one or both offsets are unaligned; 
 */
 
@@ -74,12 +79,14 @@ Function handle several cases:
 sse2_strcmp:
          pxor     %xmm7,   %xmm7
 
-         # load esi (s1)
-         # load edi (s2)
+         # load s1 (%esi) and s2 (%edi)
+         mov      4(%esp), %esi
+         mov      8(%esp), %edi
+
          test     $0x1f,   %esi
          jnz      .L_tests
          test     $0x1f,   %edi
-         jz       .L_aligned32_32
+         jnz      .L_tests
     
     # both offsets at 32-byte boundary
     .L_aligned32_32:
@@ -90,7 +97,7 @@ sse2_strcmp:
     # choose proper case
     .L_tests:
          mov      %esi,    %ecx
-         mov      %esi,    %edx
+         mov      %edi,    %edx
          and      $0xfff,  %ecx
          and      $0xfff,  %edx
          cmp      %ecx,    %edx
@@ -129,6 +136,8 @@ sse2_strcmp:
                           movzx -1(%esi),    %ebx
                           movzx -1(%edi),    %eax
                           sub       %edx,    %eax
+                           mov      4(%esp), %esi
+                           mov      8(%esp), %esi
                           ret
 
          .L_process_16a:
@@ -199,18 +208,22 @@ sse2_strcmp:
     # results
     .L_result32:  # result from COMPARE32 (unrolled loop)
          pmovmskb %xmm0,   %ecx
-         test     %ecx,    %ecx
+         xor $0x0000ffff,  %ecx
          jz       .L_result16
          bsf      %ecx,    %eax
-         movzx -32(%esi, %eax), %edx
-         movzx -32(%edi, %eax), %eax
+         movzbl -32(%edi, %eax), %edx
+         movzbl -32(%esi, %eax), %eax
          sub      %edx,    %eax
+         mov      4(%esp), %esi
+         mov      8(%esp), %edi
          ret
     .L_result16:  # result from COMPARE16
          bsf      %eax,    %eax
-         movzx -16(%esi, %eax), %edx
-         movzx -16(%edi, %eax), %eax
+         movzbl -16(%edi, %eax), %edx
+         movzbl -16(%esi, %eax), %eax
          sub      %edx,    %eax
+         mov      4(%esp), %esi
+         mov      8(%esp), %edi
          ret
 
 
