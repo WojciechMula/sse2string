@@ -1,3 +1,14 @@
+/*
+ *  SSE2 string routines library, $Revision: 1.3 $, $Date: 2007-08-22 10:43:55 $
+ *  implementation of strcmp
+ *
+ *  Author: Wojciech Mu³a
+ *  e-mail: wojciech_mula@poczta.onet.pl
+ *  project page: http://www.republika.pl/wmula/sse_str/
+ *
+ *  License: BSD
+ */
+
 .text
 
 .macro  COMPARE16 load     # compare 16 bytes
