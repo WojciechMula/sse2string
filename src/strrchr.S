@@ -19,19 +19,18 @@ sse2_strrchr:
          # %eax - address, # %edx - char
          pxor     %xmm7,   %xmm7      # xmm7 := packed_byte(0x00)
 
-
          # populate char, i.e. xmm6 := pakced_byte(al)
 #ifdef SSESTR_IMUL_POPULATE
-         movzx  8(%esi),   %eax     # load char
+         movzx  8(%esp),   %eax     # load char
          imul $0x01010101, %eax, %eax
          movd     %eax,    %xmm6
          pshufd   $0x00,   %xmm6, %xmm6
 #else
 #ifdef SSESTR_SSE3_POPULATE
-         movd   8(%esi),   %xmm6    # load char
+         movd   8(%esp),   %xmm6    # load char
          pshufb   %xmm0,   %xmm6
 #else
-         mov    8(%esi),   %al      # load char
+         movb   8(%esp),   %al      # load char
          mov      %al,     %ah
          mov      %eax,    %edx
          shl      $16,     %edx
@@ -41,19 +40,21 @@ sse2_strrchr:
 #endif /* SSESTR_SSE3_POPULATE */
 #endif /* SSESTR_IMUL_POPULATE */
 
-         mov    12(%esi),  %eax     # load address
-         push     %ebx              # save ebx
-         xor      %eax,    %ebx     # and set NULL address
+         mov     4(%esp),  %eax     # load address
+         push     %ebx              # save ebx, esi, edi
+         push     %esi
+         push     %edi
+         xor      %edi,    %edi
 
          test     $0xf,    %eax     # is address aligned at 16-byte boundary?
          jz       .L_aligned
 
     .L_unaligned:
          mov      %eax,    %edx
-         and      $0xf,    %eax     # align address
+         and      $~0xf,   %eax     # align address
 
          mov      $-1,     %ebx     # bytes to mask
-         and      $~0xf,   %edx
+         and      $0xf,    %edx
          btr      %edx,    %ebx
          add      $1,      %ebx     # ebx - bitmask
 
@@ -64,6 +65,7 @@ sse2_strrchr:
          test     %ecx,    %ecx     # any chars?
          jnz      .L_update         # ... update position
 
+    .align 16
     .L_aligned:
          BASIC_STEP16               # find null(s)/char(s)
 
@@ -71,25 +73,37 @@ sse2_strrchr:
          jnz      .L_result         # ... yes, exit
 
          test     %ecx,    %ecx     # char found?
-         jnz      .L_aligned        # ... yes
+         jz      .L_aligned         # ... no, continue
          .L_update:
-         bsr      %ecx, %ecx        # ... find pos. of last char
-         lea  -16(%eax, %ecx), %ebx # ... update address (ebx)
-         jmp      .L_aligned        # ... and continue
+         mov      %ecx,    %edi     # ... yes, save bitmask
+         mov      %eax,    %esi     # ... and base address,
+         jmp      .L_aligned        # ... continue
 
     .L_result:
-         bsf      %edx,    %edx     # null's position
-         xor      %eax,    %eax
-         bts      %edx,    %eax     # mask bytes to first null
-         and      %eax,    %ecx
+         test     %ecx,    %ecx
          jz       .L_return
+         bsf      %edx,    %edx     # null's position
+         xor      %ebx,    %ebx
+         bts      %edx,    %ebx     # mask bytes to first null occurence
+         sub      $1,      %ebx
+         and      %ebx,    %ecx     # any char found?
+         jz       .L_return         # ... no
 
-         bsr      %ecx,    %ecx     # position of last char
-         lea  -16(%eax, %ecx), %eax
+         bsr      %ecx,    %ecx     # ... yes, get position of last char
+         lea  -16(%eax, %ecx), %eax # ... and calulcate address
+         pop      %edi
+         pop      %esi
          pop      %ebx
          ret
     .L_return:
-         mov      %ebx,    %eax     # save result
+         xor      %eax,    %eax     # set NULL address
+         test     %edi,    %edi 
+         jz       .L_end
+         bsr      %edi,    %edi
+         lea  -16(%esi, %edi), %eax
+    .L_end:
+         pop      %edi
+         pop      %esi
          pop      %ebx
          ret
 
