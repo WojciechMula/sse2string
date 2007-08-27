@@ -1,6 +1,8 @@
 /*
- *  SSE2 string routines library, $Revision: 1.3 $, $Date: 2007-08-21 21:44:40 $
+ *  SSE2 string routines library
  *  implementation of strlen
+ *
+ *  $Revision: 1.4 $, $Date: 2007-08-27 09:27:50 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,10 +13,10 @@
 
 .text
 
-.macro  FIND_NULL16
+.macro  FIND_NULL16        # locate null byte(s) in a 16-byte chunk
          movaps   (%eax), %xmm1     # load 16 bytes
          add      $16,    %eax      # advance address
-         pcmpeqb  %xmm0,  %xmm1     # locate null bytes
+         pcmpeqb  %xmm0,  %xmm1     # locate null byte(s)
          pmovmskb %xmm1,  %edx      # result -> bitmask
          test     %edx,   %edx      # any bit set?
 .endm
@@ -31,7 +33,7 @@ sse2_strlen:
 
          .L_unaligned:
                   # address unaligned: we read 16-byte aligned chunk
-                  # but mask lower bytes (before string start)
+                  # and mask lower bytes (before string beginning)
                   mov      %eax,   %edx
                   mov      $-1,    %ecx      # ecx := 0xffffffff
                   and      $~0xf,  %eax      # align address at 16-boundary
@@ -53,17 +55,17 @@ sse2_strlen:
 
          .align 16
          .L_mainloop:
-                  movaps   (%eax), %xmm1
+                  movaps   (%eax), %xmm1     # load 32 bytes
                   movaps 16(%eax), %xmm2
-                  add      $32,    %eax
-                  pcmpeqb  %xmm0,  %xmm1
+                  add      $32,    %eax      # advanve address
+                  pcmpeqb  %xmm0,  %xmm1     # locate '\0'
                   pcmpeqb  %xmm0,  %xmm2
-                  por      %xmm1,  %xmm2
-                  pmovmskb %xmm2,  %edx
-                  test     %edx,   %edx      # is null in 32-byte chunk?
+                  por      %xmm1,  %xmm2     # join result
+                  pmovmskb %xmm2,  %edx      # ... and create bitmask
+                  test     %edx,   %edx      # is '\0' in 32-byte chunk?
                   jz       .L_mainloop
 
-         # calculate length
+         # get length
          pmovmskb %xmm1,  %ecx
          test     %ecx,   %ecx
          jz       .L_result16
