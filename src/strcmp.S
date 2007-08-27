@@ -1,6 +1,8 @@
 /*
- *  SSE2 string routines library, $Revision: 1.3 $, $Date: 2007-08-22 10:43:55 $
+ *  SSE2 string routines library
  *  implementation of strcmp
+ *
+ *  $Revision: 1.4 $, $Date: 2007-08-27 10:58:08 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -12,7 +14,7 @@
 .text
 
 .macro  COMPARE16 load     # compare 16 bytes
-         # load, i.e. movaps or movups
+         # load = {movaps, movups}
          \load    (%esi),  %xmm0
          \load    (%edi),  %xmm1
          add      $16,     %esi
@@ -27,7 +29,7 @@
 
 
 .macro   COMPARE32 load    # compare 32 bytes
-         # load, i.e. movaps or movups
+         # load = {movaps, movups}
          \load    (%esi),  %xmm0
          \load  16(%esi),  %xmm2
          \load    (%edi),  %xmm1
@@ -48,7 +50,10 @@
 .endm
 
 /*
-We consider just offset on a page, i.e. the lowest 12 bits of addresses:
+In order to handle unaligned addresses and prevent from read
+above process address space function have to p
+
+Offset on a page, i.e. the lowest 12 bits of addresses, is considered:
 
 	+-----------+-----------+---------+---------+
 	|      \ s1 | unaligned | 16-byte | 32-byte |
@@ -80,7 +85,7 @@ Function handle several cases:
    reached, and finally case I is processed
 
 5. L_unaligned (cases A, B, C, D, G):
-   one or both offsets are unaligned; 
+   one or both offsets are unaligned
 */
 
 
@@ -91,8 +96,12 @@ sse2_strcmp:
          pxor     %xmm7,   %xmm7
 
          # load s1 (%esi) and s2 (%edi)
+         mov      %esi,    %eax
+         mov      %esi,    %ecx
          mov      4(%esp), %esi
          mov      8(%esp), %edi
+         push     %eax
+         push     %ecx
 
          test     $0x1f,   %esi
          jnz      .L_tests
@@ -197,11 +206,11 @@ sse2_strcmp:
 
     .L_offsets_equal:
          and      $0xf,    %ecx     # really unaligned?
-         jmp      .L_aligned16_16   # .. no, both aligned at 16-byte
+         jmp      .L_aligned16_16   # ... no, both aligned at 16-byte
 
-         and      $0xfffffff0, %esi # align both addresses
+         and      $0xfffffff0, %esi # ... yes, so align both addresses
          and      $0xfffffff0, %edi
-         mov      $0xffffffff, %edx # and create mask
+         mov      $0xffffffff, %edx # ... and create bitmask
          btr      %ecx,    %edx
          add      $1,      %edx
 
