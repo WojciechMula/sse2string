@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strlen
  *
- *  $Revision: 1.4 $, $Date: 2007-08-27 09:27:50 $
+ *  $Revision: 1.5 $, $Date: 2007-08-28 20:36:16 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -37,7 +37,7 @@ sse2_strlen:
                   mov      %eax,   %edx
                   mov      $-1,    %ecx      # ecx := 0xffffffff
                   and      $~0xf,  %eax      # align address at 16-boundary
-                  and      $0xf,   %edx      # ebx := bytes to skip
+                  and      $0xf,   %edx      # edx := bytes to skip
                   btr      %edx,   %ecx
                   add      $1,     %ecx      # ecx := mask
 

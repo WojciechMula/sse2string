@@ -28,9 +28,9 @@ sse2_strrchr:
 #else
 #ifdef SSESTR_SSE3_POPULATE
          movd   8(%esp),   %xmm6    # load char
-         pshufb   %xmm0,   %xmm6
+         pshufb   %xmm7,   %xmm6
 #else
-         movb   8(%esp),   %al      # load char
+         movzbl 8(%esp),   %eax     # load char
          mov      %al,     %ah
          mov      %eax,    %edx
          shl      $16,     %edx
