@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strcmp
  *
- *  $Revision: 1.4 $, $Date: 2007-08-27 10:58:08 $
+ *  $Revision: 1.5 $, $Date: 2007-08-28 20:36:06 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -97,7 +97,7 @@ sse2_strcmp:
 
          # load s1 (%esi) and s2 (%edi)
          mov      %esi,    %eax
-         mov      %esi,    %ecx
+         mov      %edi,    %ecx
          mov      4(%esp), %esi
          mov      8(%esp), %edi
          push     %eax
@@ -135,7 +135,7 @@ sse2_strcmp:
          and      $0xfff,  %ecx     # get offsets
          and      $0xfff,  %edx  
          cmp      %edx,    %ecx
-         cmovge   %edx,    %ecx     # ecx - max offset
+         cmovb    %edx,    %ecx     # ecx - max offset
 
          xor      $0xfff,  %ecx     # ecx := 4096 - ecx
          add      $1,      %ecx     # ... i.e. offset to end of page
@@ -153,11 +153,11 @@ sse2_strcmp:
                   test     %al,     %al
                   jnz      .L_process_1
                   .L_result_1:
-                          movzx -1(%esi),    %ebx
-                          movzx -1(%edi),    %eax
+                          movzx -1(%edi),    %edx
+                          movzx -1(%esi),    %eax
                           sub       %edx,    %eax
-                           mov      4(%esp), %esi
-                           mov      8(%esp), %esi
+                          pop       %edi
+                          pop       %esi
                           ret
 
          .L_process_16a:
@@ -168,9 +168,9 @@ sse2_strcmp:
                   COMPARE16 movups
                   jnz      .L_result16
          .L_process_32a:
-                  test     $0xf00,  %ecx
+                  test     $0xfe0,  %ecx
                   jz       .L_unaligned
-                  sub      $0x20,   %ecx
+                  sub      $0x020,  %ecx
 
                   COMPARE32 movups
                   jz       .L_process_32a
@@ -183,7 +183,7 @@ sse2_strcmp:
          and      $0xff0,  %ecx     # get offsets
          and      $0xff0,  %edx  
          cmp      %edx,    %ecx
-         cmovge   %edx,    %ecx     # ecx - max offset
+         cmovb    %edx,    %ecx     # ecx - max offset
 
          xor      $0xff0,  %ecx     # ecx := 4096 - ecx
          add      $1,      %ecx     # ... i.e. offset to end of page
@@ -196,7 +196,7 @@ sse2_strcmp:
                   COMPARE16 movaps
                   jnz      .L_result16
          .L_process_32b:
-                  test     $0xf00,  %ecx
+                  test     $0xfe0,  %ecx
                   jz       .L_unaligned
                   sub      $0x20,   %ecx
 
@@ -206,7 +206,7 @@ sse2_strcmp:
 
     .L_offsets_equal:
          and      $0xf,    %ecx     # really unaligned?
-         jmp      .L_aligned16_16   # ... no, both aligned at 16-byte
+         jz       .L_aligned16_16   # ... no, both aligned at 16-byte
 
          and      $0xfffffff0, %esi # ... yes, so align both addresses
          and      $0xfffffff0, %edi
@@ -234,16 +234,17 @@ sse2_strcmp:
          movzbl -32(%edi, %eax), %edx
          movzbl -32(%esi, %eax), %eax
          sub      %edx,    %eax
-         mov      4(%esp), %esi
-         mov      8(%esp), %edi
+         pop      %edi
+         pop      %esi
          ret
     .L_result16:  # result from COMPARE16
          bsf      %eax,    %eax
          movzbl -16(%edi, %eax), %edx
          movzbl -16(%esi, %eax), %eax
          sub      %edx,    %eax
-         mov      4(%esp), %esi
-         mov      8(%esp), %edi
+    .L_end:
+         pop      %edi
+         pop      %esi
          ret
 
 
