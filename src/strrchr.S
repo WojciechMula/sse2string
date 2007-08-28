@@ -1,3 +1,16 @@
+/*
+ *  SSE2 string routines library
+ *  implementation of strrchr
+ *
+ *  $Revision: 1.4 $, $Date: 2007-08-28 20:38:37 $
+ *
+ *  Author: Wojciech Mu³a
+ *  e-mail: wojciech_mula@poczta.onet.pl
+ *  project page: http://www.republika.pl/wmula/sse_str/
+ *
+ *  License: BSD
+ */
+
 .text
 
 .macro  BASIC_STEP16       # process 16 bytes

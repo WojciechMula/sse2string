@@ -1,6 +1,8 @@
 /*
- *  SSE2 string routines library, $Revision: 1.7 $, $Date: 2007-08-28 20:35:29 $
+ *  SSE2 string routines library
  *  implementation of strchr
+ *
+ *  $Revision: 1.8 $, $Date: 2007-08-28 20:38:37 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
