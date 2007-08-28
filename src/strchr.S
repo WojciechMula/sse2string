@@ -1,5 +1,5 @@
 /*
- *  SSE2 string routines library, $Revision: 1.6 $, $Date: 2007-08-27 10:57:48 $
+ *  SSE2 string routines library, $Revision: 1.7 $, $Date: 2007-08-28 20:35:29 $
  *  implementation of strchr
  *
  *  Author: Wojciech Mu³a
@@ -11,7 +11,7 @@
 
 .text
 
-.macro FIND_POSITION16 # locate null byte or char in a sequence of 16 bytes
+.macro FIND_POSITION16 # locate null bytes or chars in a sequence of 16 bytes
          movaps   (%eax),  %xmm2    # load 16 chars
          add      $16,     %eax
          movaps   %xmm2,   %xmm3    # copy them, then
@@ -30,14 +30,14 @@ sse2_strchr:
          # xmm1 := packed_byte(char)
 #ifdef SSESTR_IMUL_POPULATE
          movzbl   8(%esp),     %eax
-         imul     $0x01010101, %eax 
+         imul     $0x01010101, %eax
          movd     %eax,    %xmm1
          pshufd   $0x00,   %xmm1, %xmm1
 #else
 #ifdef SSESTR_SSE3_POPULATE
          movd     8(%esp), %xmm1
          pshufb   %xmm0,   %xmm1
-#else
+#else /* straightforward method to populate byte */
          movzbl   8(%esp), %eax
          mov      %al,     %ah
          mov      %eax,    %ecx
@@ -56,21 +56,21 @@ sse2_strchr:
                   mov      %eax,   %edx
                   mov      $-1,    %ecx      # ecx := 0xffffffff
                   and      $~0xf,  %eax      # align address at 16-boundary
-                  and      $0xf,   %edx      # ebx := bytes to skip
-                  btr      %edx,   %ecx
+                  and      $0xf,   %edx      # ebx := bytes before
+                  btr      %edx,   %ecx      #        ... string's beginning
                   add      $1,     %ecx      # ecx := mask
-         
+
                   FIND_POSITION16            # locate \0 or char
                   and      %ecx,   %edx      # mask result
                   jnz .L_result16
 
          .L_aligned16:
          # is address aligned at 32-byte boundary?
-         test $0x10,  %eax 
+         test $0x10,  %eax
          jz   .L_mainloop
-         
+
                   FIND_POSITION16            # locate \0 or char
-                  test     %edx,    %edx 
+                  test     %edx,    %edx
                   jnz      .L_result16
 
 
@@ -88,11 +88,11 @@ sse2_strchr:
                   por      %xmm4,   %xmm2    # join result
                   por      %xmm5,   %xmm3
                   por      %xmm2,   %xmm3
-                  pmovmskb %xmm3,   %edx     # and get bit-mask
+                  pmovmskb %xmm3,   %edx     # and get bitmask
                   test     %edx,    %edx
                   jz       .L_mainloop
 
-         # calculate length
+         # return result
          pmovmskb %xmm2,  %ecx
          test     %ecx,   %ecx
          jz       .L_result16
@@ -100,8 +100,8 @@ sse2_strchr:
                   bsf    %ecx, %ecx
                   lea    -32(%eax, %ecx), %edx   # address of byte \0 or char
                   xor    %eax, %eax              # eax := NULL
-                  cmpb   $0x00, (%edx)           
-                  cmovne %edx, %eax              # eax := address if char
+                  cmpb   $0x00, (%edx)           # 
+                  cmovne %edx, %eax              # eax := address (if char)
                   ret
          .L_result16:
                   bsf    %edx, %edx
