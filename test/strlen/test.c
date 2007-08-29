@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sse2string.h>
 #include "../timeit.c"
 
 #define kB   *1024
