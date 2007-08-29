@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* sse2_strchr(const char* s, int c) __attribute__((pure));
+#include <sse2string.h>
+#include "../timeit.c"
 
 #define kB   *1024
 #define SIZE (16 kB)
@@ -44,21 +45,24 @@ int main(int argc, char* argv[]) {
 	char *l1, *l2;
 	switch (fun) {
 		case 0:
-			while (cnt--) l1 = strchr(text, c);
+			TIMEIT(l1 = strchr(text, c));
 			break;
 		case 1:
-			while (cnt--) l2 = sse2_strchr(text, c);
+			TIMEIT(l2 = sse2_strchr(text, c));
 			break;
 		default:
 			l1 = strchr(text, c);
 			l2 = sse2_strchr(text, c);
 			if (l1 != l2) {
-				printf("error: result is 0x%08x, should be 0x%08x\n", l2, l1); 
+				printf("error: result is 0x%08x, should be 0x%08x\n",
+				        (unsigned int)l2, (unsigned int)l1); 
 				return 1;
 			}
 			else
 			if (v)
-				printf("ok, result is 0x%08x\n", l1);
+				printf("ok, result is 0x%08x\n", (unsigned int)l1);
 	}
 	return 0;
 }
+
+// vim: ts=4 sw=4 nowrap
