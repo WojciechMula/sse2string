@@ -1,4 +1,4 @@
-/* $Id: timeit.c,v 1.1 2007-08-29 14:15:49 wojtek Exp $ */
+/* $Id: timeit.c,v 1.2 2007-08-29 14:18:09 wojtek Exp $ */
 #include <sys/time.h>
 #include <time.h>
 
@@ -16,7 +16,9 @@ int n, i, time1, time2, dt, best=1000000000;
 		while (n--)					\
 			{expression;}				\
 		gettimeofday(&t2, NULL);			\
-		dt = timeval2int(t2) - timeval2int(t1);		\
+		time1 = 1000000*t1.tv_sec + t1.tv_usec;		\
+		time2 = 1000000*t2.tv_sec + t2.tv_usec;		\
+		dt = time2 - time1;				\
 		if (dt < best) best = dt;			\
 	}							\
 	printf("%d\n", best);
