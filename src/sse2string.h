@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  header file
  *
- *  $Revision: 1.1 $, $Date: 2007-08-28 20:31:31 $
+ *  $Revision: 1.2 $, $Date: 2007-08-29 14:45:44 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -34,6 +34,6 @@ extern int	sse2_strcmp(const char* s1, const char* s2) __pure__;
 
 /* unsafe string.h functions, i.e. assert aligned pointers and
    do not prevent reads beyond program's address space */
-extern int	sse2_strncmp_unsafe(const char* s1, const char* s1, size_t n) __pure__;
+extern int	sse2_strncmp_unsafe(const char* s1, const char* s2, size_t n) __pure__;
 
 #endif
