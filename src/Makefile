@@ -1,4 +1,4 @@
-LIB=libsse2str.a
+LIB=libsse2string.a
 
 LIBOPTS=
 ifeq ($(MAKECMDGOALS),imul)
