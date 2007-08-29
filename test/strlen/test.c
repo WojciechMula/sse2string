@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../timeit.c"
+
 #define kB   *1024
 #define SIZE (16 kB)
 char buffer[SIZE] __attribute__((aligned(4 kB)));
@@ -35,12 +37,13 @@ int main(int argc, char* argv[]) {
 	buffer[SIZE-1] = buffer[len] = 0;
 
 	int l1, l2;
+	
 	switch (fun) {
 		case 0:
-			while (cnt--) l1 = strlen(text);
+			TIMEIT(l1 = strlen(text))
 			break;
 		case 1:
-			while (cnt--) l2 = sse2_strlen(text);
+			TIMEIT(l2 = sse2_strlen(text))
 			break;
 		default:
 			l1 = strlen(text);
