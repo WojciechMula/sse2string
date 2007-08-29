@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sse2_strcmp(const char* s1, const char* s2) __attribute__((pure));
-
-#include "dump_xmm.c"
+#include <sse2string.h>
+#include "../timeit.c"
 
 #define kB   *1024
 #define SIZE (16 kB)
@@ -56,18 +55,14 @@ int main(int argc, char* argv[]) {
 	int l1, l2;
 	switch (fun) {
 		case 0:
-			while (cnt--) l1 = strcmp(text1, text2);
+			TIMEIT(l1 = strcmp(text1, text2));
 			break;
 		case 1:
-			while (cnt--) l2 = sse2_strcmp(text1, text2);
+			TIMEIT(l2 = sse2_strcmp(text1, text2));
 			break;
 		default:
 			l1 = strcmp(text1, text2);
 			l2 = sse2_strcmp(text1, text2);
-			/*dump_xmm(0);
-			dump_xmm(1);
-			dump_xmm(2);
-			dump_xmm(3);*/
 			if (sign(l1) != sign(l2)) {
 				printf("error: result is %d, should be %d\n", l2, l1); 
 				return 1;
@@ -78,3 +73,5 @@ int main(int argc, char* argv[]) {
 	}
 	return 0;
 }
+
+// vim: ts=4 sw=4 nowrap
