@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strchr
  *
- *  $Revision: 1.9 $, $Date: 2007-08-30 20:56:33 $
+ *  $Revision: 1.10 $, $Date: 2007-08-30 21:09:06 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -22,6 +22,8 @@
          por      %xmm2,   %xmm3    # ... join results,
          pmovmskb %xmm3,   %edx     # and finally return a bitmask
 .endm
+
+#define L(name) .L_##name
 
 .global sse2_strchr
 .type   sse2_strchr, @function
@@ -52,9 +54,9 @@ sse2_strchr:
 
          mov      4(%esp), %eax     # load address
          test     $0xf,    %eax     # is address aligned at 16-byte boundary?
-         jz       .L_aligned16
+         jz       L(aligned16)
 
-         .L_unaligned:
+         L(unaligned):
                   mov      %eax,   %edx
                   mov      $-1,    %ecx      # ecx := 0xffffffff
                   and      $~0xf,  %eax      # align address at 16-boundary
@@ -64,20 +66,20 @@ sse2_strchr:
 
                   FIND_POSITION16            # locate \0 or char
                   and      %ecx,   %edx      # mask result
-                  jnz .L_result16
+                  jnz L(result16)
 
-         .L_aligned16:
+         L(aligned16):
          # is address aligned at 32-byte boundary?
          test $0x10,  %eax
-         jz   .L_mainloop
+         jz   L(mainloop)
 
                   FIND_POSITION16            # locate \0 or char
                   test     %edx,    %edx
-                  jnz      .L_result16
+                  jnz      L(result16)
 
 
          .align 16
-         .L_mainloop:
+         L(mainloop):
                   movaps   (%eax),  %xmm2    # load 32 chars
                   movaps 16(%eax),  %xmm3
                   add      $32,     %eax
@@ -92,20 +94,20 @@ sse2_strchr:
                   por      %xmm2,   %xmm3
                   pmovmskb %xmm3,   %edx     # and get bitmask
                   test     %edx,    %edx
-                  jz       .L_mainloop
+                  jz       L(mainloop)
 
          # return result
          pmovmskb %xmm2,  %ecx
          test     %ecx,   %ecx
-         jz       .L_result16
-         .L_result32:
+         jz       L(result16)
+         L(result32):
                   bsf    %ecx, %ecx
                   lea    -32(%eax, %ecx), %edx   # address of byte \0 or char
                   xor    %eax, %eax              # eax := NULL
                   cmpb   $0x00, (%edx)           # 
                   cmovne %edx, %eax              # eax := address (if char)
                   ret
-         .L_result16:
+         L(result16):
                   bsf    %edx, %edx
                   lea    -16(%eax, %edx), %edx
                   xor    %eax, %eax
@@ -114,6 +116,8 @@ sse2_strchr:
                   ret
 
 
+#undef L
+#define L(name) .L_unsafe##name
 
 .global sse2_strchr_unsafe
 .type   sse2_strchr_unsafe, @function
@@ -144,7 +148,7 @@ sse2_strchr_unsafe:
 
          mov      4(%esp), %eax     # load address
          .align 16
-         .L_mainloop:
+         L(mainloop):
                   movaps   (%eax),  %xmm2    # load 32 chars
                   movaps 16(%eax),  %xmm3
                   add      $32,     %eax
@@ -159,20 +163,20 @@ sse2_strchr_unsafe:
                   por      %xmm2,   %xmm3
                   pmovmskb %xmm3,   %edx     # and get bitmask
                   test     %edx,    %edx
-                  jz       .L_mainloop
+                  jz       L(mainloop)
 
          # return result
          pmovmskb %xmm2,  %ecx
          test     %ecx,   %ecx
-         jz       .L_result16
-         .L_result32:
+         jz       L(result16)
+         L(result32):
                   bsf    %ecx, %ecx
                   lea    -32(%eax, %ecx), %edx   # address of byte \0 or char
                   xor    %eax, %eax              # eax := NULL
                   cmpb   $0x00, (%edx)           # 
                   cmovne %edx, %eax              # eax := address (if char)
                   ret
-         .L_result16:
+         L(result16):
                   bsf    %edx, %edx
                   lea    -16(%eax, %edx), %edx
                   xor    %eax, %eax
