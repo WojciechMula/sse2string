@@ -2,11 +2,11 @@
  *  SSE2 string routines library
  *  implementation of strrchr, strrchr_unsafe
  *
- *  $Revision: 1.5 $, $Date: 2007-08-30 21:17:22 $
+ *  $Revision: 1.6 $, $Date: 2007-08-30 21:18:41 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
- *  project page: http://www.republika.pl/wmula/sse_str/
+ *  project page: http://www.republika.pl/wmula/sse2string/
  *
  *  License: BSD
  */
