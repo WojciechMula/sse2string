@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strlen
  *
- *  $Revision: 1.5 $, $Date: 2007-08-28 20:36:16 $
+ *  $Revision: 1.6 $, $Date: 2007-08-30 21:14:48 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -21,6 +21,8 @@
          test     %edx,   %edx      # any bit set?
 .endm
 
+#define L(name) .L_##name
+
 .global sse2_strlen
 .type   sse2_strlen, @function
 .align  32
@@ -29,9 +31,9 @@ sse2_strlen:
          pxor     %xmm0,  %xmm0     # xmm0 := packed_byte(0x00)
 
          test     $0x0f,  %eax      # is address aligned at 16-byte boundary?
-         jz       .L_aligned16
+         jz       L(aligned16)
 
-         .L_unaligned:
+         L(unaligned):
                   # address unaligned: we read 16-byte aligned chunk
                   # and mask lower bytes (before string beginning)
                   mov      %eax,   %edx
@@ -43,18 +45,18 @@ sse2_strlen:
 
                   FIND_NULL16
                   and      %ecx,   %edx      # mask result
-                  jnz .L_result16
+                  jnz L(result16)
 
-         .L_aligned16:
+         L(aligned16):
                   test $0x10,  %eax          # is address aligned at 32-byte boundary?
-                  jz   .L_mainloop
+                  jz   L(mainloop)
 
                   FIND_NULL16
-                  jnz .L_result16
+                  jnz L(result16)
 
 
          .align 16
-         .L_mainloop:
+         L(mainloop):
                   movaps   (%eax), %xmm1     # load 32 bytes
                   movaps 16(%eax), %xmm2
                   add      $32,    %eax      # advanve address
@@ -63,19 +65,58 @@ sse2_strlen:
                   por      %xmm1,  %xmm2     # join result
                   pmovmskb %xmm2,  %edx      # ... and create bitmask
                   test     %edx,   %edx      # is '\0' in 32-byte chunk?
-                  jz       .L_mainloop
+                  jz       L(mainloop)
 
          # get length
          pmovmskb %xmm1,  %ecx
          test     %ecx,   %ecx
-         jz       .L_result16
-         .L_result32:
+         jz       L(result16)
+         L(result32):
                   bsf %ecx, %ecx
                   mov 4(%esp), %edx
                   lea -32(%eax, %ecx), %eax
                   sub %edx, %eax
                   ret
-         .L_result16:
+         L(result16):
+                  bsf %edx, %edx
+                  mov 4(%esp), %ecx
+                  lea -16(%eax, %edx), %eax
+                  sub %ecx, %eax
+                  ret
+
+#undef L
+#define L(name) .L_unsafe##name
+
+.global sse2_strlen_unsafe
+.type   sse2_strlen_unsafe, @function
+.align  32
+sse2_strlen_unsafe:
+         mov    4(%esp),  %eax      # get address
+         pxor     %xmm0,  %xmm0     # xmm0 := packed_byte(0x00)
+
+         .align 16
+         L(mainloop):
+                  movaps   (%eax), %xmm1     # load 32 bytes
+                  movaps 16(%eax), %xmm2
+                  add      $32,    %eax      # advanve address
+                  pcmpeqb  %xmm0,  %xmm1     # locate '\0'
+                  pcmpeqb  %xmm0,  %xmm2
+                  por      %xmm1,  %xmm2     # join result
+                  pmovmskb %xmm2,  %edx      # ... and create bitmask
+                  test     %edx,   %edx      # is '\0' in 32-byte chunk?
+                  jz       L(mainloop)
+
+         # get length
+         pmovmskb %xmm1,  %ecx
+         test     %ecx,   %ecx
+         jz       L(result16)
+         L(result32):
+                  bsf %ecx, %ecx
+                  mov 4(%esp), %edx
+                  lea -32(%eax, %ecx), %eax
+                  sub %edx, %eax
+                  ret
+         L(result16):
                   bsf %edx, %edx
                   mov 4(%esp), %ecx
                   lea -16(%eax, %edx), %eax
