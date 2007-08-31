@@ -12,7 +12,7 @@ for ofs in `seq 0 4095`; do
 		fi
 	done
 	for len in `seq 256 256 16383`; do
-		$prog $verbose $ofs 16383 $len 16383 0 2 || exit
+		$prog $verbose $ofs 16383 $len 16383 0 2
 		if [[ $? -ne 0 ]]; then
 			echo "(b) ofs=$ofs, len=$len"
 			exit
