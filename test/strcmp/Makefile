@@ -1,10 +1,10 @@
-include ../Makefile
+include ../Makefile.inc
 
 strcmp: test.c
 	gcc -o strcmp -L$(LIBPATH) -I$(INCPATH) test.c -l$(LIBNAME)
 
 verify: strcmp
-	echo "Not implemented yet"
+	sh verify.sh && touch verify
 
 OFFSETS=0 7 16 25
 RESULTS256=$(foreach o1,$(OFFSETS),$(foreach o2,$(OFFSETS),$(o1)-$(o2)-256))
