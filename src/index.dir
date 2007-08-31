@@ -1,0 +1,3 @@
+copy: *.S
+copy: *.h
+copy: Makefile
