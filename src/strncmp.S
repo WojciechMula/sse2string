@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of unsafe strncmp
  *
- *  $Revision: 1.2 $, $Date: 2007-08-30 21:18:41 $
+ *  $Revision: 1.3 $, $Date: 2007-08-31 17:41:14 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -27,7 +27,7 @@ sse2_strncmp_unsafe:
          mov      %eax,    %edi
 
          cmp      $16,     %eax     # n < 16
-         jl       .L_result
+         jl       .L_16less
          and      $~0x0f,  %eax     # (n / 16) * 16
          
     .align 16
@@ -46,12 +46,12 @@ sse2_strncmp_unsafe:
          sub      $16,     %eax
          jnz      .L_mainloop
 
-    .L_result:
+    .L_16less:
          and      $0xf,    %edi     # n % 16
          jz       .L_end
 
-         mov      $-1,     %eax     # eax - mask
-         btr      %edi,    %eax
+         xor      %eax,    %eax     # eax - mask
+         bts      %edi,    %eax
          sub      $1,      %eax
          
          movaps   (%ecx),  %xmm0
@@ -65,6 +65,7 @@ sse2_strncmp_unsafe:
          xor $0x0000ffff,  %ebx
          and      %eax,    %ebx
          jnz      .L_result16
+         dec      %edi
     .L_end:
          movzbl -16(%edx, %edi, 1), %edx
          movzbl -16(%ecx, %edi, 1), %eax
