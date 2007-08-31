@@ -8,7 +8,7 @@ help:
 results: results.tar.gz
 
 results.tar.gz:
-	tar -czf $@ str*/*256 str*/*16k *.gnuplot Makefile
+	tar -czf $@ str*/*256 str*/*16k *.gnuplot Makefile strncmp/16383
 
 PICS=strlena.png strlenb.png	\
      strchra.png strchrb.png	\
