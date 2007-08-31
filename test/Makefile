@@ -1,7 +1,3 @@
-LIBPATH=../../src/
-LIBNAME=sse2string
-INCPATH=../../src/
-
 results: results.tar.gz
 
 results.tar.gz:
