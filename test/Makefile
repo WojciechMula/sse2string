@@ -1,3 +1,10 @@
+.DEFAULT_GOAL := help
+
+help:
+	$(info arguments:)
+	$(info * result - gather results from subdirectories (results.tar.gz is created))
+	$(info * plots - make plots of results)
+
 results: results.tar.gz
 
 results.tar.gz:
@@ -7,28 +14,19 @@ PICS=strlena.png strlenb.png	\
      strchra.png strchrb.png	\
      strrchra.png strrchrb.png	\
      strcmpaa.png strcmpab.png	\
-     strcmpua.png strcmpub.png
+     strcmpua.png strcmpub.png	\
+     strncmpa.png strncmpb.png
 
 plots: $(PICS)
 
-strlena.png:
-	sh plot1.gnuplot strlen
-strlenb.png:
-	sh plot2.gnuplot strlen
-strchra.png:
-	sh plot1.gnuplot strchr
-strchrb.png:
-	sh plot2.gnuplot strchr
-strrchra.png:
-	sh plot1.gnuplot strrchr
-strrchrb.png:
-	sh plot2.gnuplot strrchr
+strlena.png strchra.png strrchra.png:
+	sh plot1.gnuplot $(subst a.png,,$@)
 
-strcmpua.png:
-	sh strcmpua.gnuplot strcmp
-strcmpub.png:
-	sh strcmpub.gnuplot strcmp
-strcmpaa.png:
-	sh strcmpaa.gnuplot strcmp
-strcmpab.png:
-	sh strcmpab.gnuplot strcmp
+strlenb.png strchrb.png strrchrb.png:
+	sh plot2.gnuplot $(subst b.png,,$@)
+
+strcmpua.png strcmpub.png strcmpaa.png strcmpab.png:
+	sh $(subst .png,,$@).gnuplot strcmp
+
+strncmpa.png strncmpb.png:
+	sh $(subst .png,,$@).gnuplot strncmp
