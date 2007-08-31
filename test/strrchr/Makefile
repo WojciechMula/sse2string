@@ -1,11 +1,10 @@
-include ../Makefile
+include ../Makefile.inc
 
 strrchr: test.c
 	gcc -o strrchr -L$(LIBPATH) -I$(INCPATH) test.c -l$(LIBNAME)
 
 verify: strrchr
-	touch verify
-	sh verify.sh
+	sh verify.sh && touch verify
 
 speedup: strrchr 0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
 

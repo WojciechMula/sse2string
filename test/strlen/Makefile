@@ -1,11 +1,10 @@
-include ../Makefile
+include ../Makefile.inc
 
 strlen: test.c
 	gcc -o strlen -L$(LIBPATH) -I$(INCPATH) test.c -l$(LIBNAME)
 
 verify: strlen
-	touch verify
-	sh verify.sh
+	sh verify.sh && touch verify
 
 speedup: strlen 0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
 
