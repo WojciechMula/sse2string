@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strcmp, strcmp_unsafe
  *
- *  $Revision: 1.8 $, $Date: 2007-09-01 12:02:02 $
+ *  $Revision: 1.9 $, $Date: 2007-09-02 20:20:02 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -51,9 +51,8 @@
 
 /*
 In order to handle unaligned addresses and prevent from read
-above process address space function have to p
-
-Offset on a page, i.e. the lowest 12 bits of addresses, is considered:
+above process address space function have to consider several cases,
+selected by offsets on a pages, i.e the lowest 12 bits of addresses:
 
 	+-----------+-----------+---------+---------+
 	|      \ s1 | unaligned | 16-byte | 32-byte |
@@ -66,10 +65,10 @@ Offset on a page, i.e. the lowest 12 bits of addresses, is considered:
 	|   32-byte |     G     |    H    |    I    |
 	+-----------+-----------+---------+---------+
 
-Function handle several cases:
+These cases are:
 
 1. L_aligned32_32 (case I): 
-   both offsets at 32-byte boundary
+   both offsets at 32-byte boundary (fastest code path)
 
 2. L_aligned16_32 (cases F, H):
    one offset at 16-byte boundary, another at 32-byte boundary
@@ -77,15 +76,15 @@ Function handle several cases:
 3. L_aligned16_16 (case E):
    both offsets at 16-byte boundary -- we process just one 16-byte
    chunk, then offsets are aligned at 32-byte boundary, and thus
-   case I is reached
+   case 1. is reached
 
 4. L_offsets_equal:
    both offsets are unaligned or aligned at 16-byte boundary,
-   but equal -- we can proces unaligned bytes, then case E is
-   reached, and finally case I is processed
+   but equal -- we can proces unaligned bytes, then case 3. is
+   reached, and finally case 1. is processed
 
 5. L_unaligned (cases A, B, C, D, G):
-   one or both offsets are unaligned
+   one or both offsets are unaligned (slowest code path)
 */
 
 
