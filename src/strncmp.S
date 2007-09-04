@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of unsafe strncmp
  *
- *  $Revision: 1.4 $, $Date: 2007-09-01 12:02:19 $
+ *  $Revision: 1.5 $, $Date: 2007-09-04 09:05:38 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -50,10 +50,6 @@ sse2_strncmp_unsafe:
          and      $0xf,    %edi     # n % 16
          jz       .L_end
 
-         xor      %eax,    %eax     # eax - mask
-         bts      %edi,    %eax
-         sub      $1,      %eax
-         
          movaps   (%ecx),  %xmm0
          movaps   (%edx),  %xmm1
          add      $16,     %ecx
@@ -62,10 +58,9 @@ sse2_strncmp_unsafe:
          pcmpeqb  %xmm2,   %xmm0    # locate '\0'
          pandn    %xmm1,   %xmm0 
          pmovmskb %xmm0,   %ebx
+         btr      %edi,    %ebx     # reset bit at end of string
          xor $0x0000ffff,  %ebx
-         and      %eax,    %ebx
          jnz      .L_result16
-         dec      %edi
     .L_end:
          movzbl -16(%edx, %edi, 1), %edx
          movzbl -16(%ecx, %edi, 1), %eax
