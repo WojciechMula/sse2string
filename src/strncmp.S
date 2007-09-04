@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of unsafe strncmp
  *
- *  $Revision: 1.5 $, $Date: 2007-09-04 09:05:38 $
+ *  $Revision: 1.6 $, $Date: 2007-09-04 09:36:17 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -58,7 +58,8 @@ sse2_strncmp_unsafe:
          pcmpeqb  %xmm2,   %xmm0    # locate '\0'
          pandn    %xmm1,   %xmm0 
          pmovmskb %xmm0,   %ebx
-         btr      %edi,    %ebx     # reset bit at end of string
+         sub      $1,      %edi
+         btr      %edi,    %ebx     # reset bit before end of string
          xor $0x0000ffff,  %ebx
          jnz      .L_result16
     .L_end:
