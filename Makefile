@@ -5,10 +5,10 @@ DIR=../sse2string
 
 arch: $(ARCH) $(ARCH_ALL)
 
-$(ARCH):
+$(ARCH): $(DIR)/src/*.S
 	tar -czf $(ARCH) $(DIR)/src/*.S
 
-$(ARCH_ALL):
+$(ARCH_ALL): $(DIR)/src/*.S
 	tar -czf $(ARCH_ALL) \
 	$(DIR)/src/*.S \
 	$(DIR)/test/*.gnuplot \
@@ -17,6 +17,8 @@ $(ARCH_ALL):
 	$(DIR)/test/str*/*.c \
 	$(DIR)/test/str*/*.sh \
 	$(DIR)/test/str*/Makefile \
+
+$(DIR)/src/*.S:
 
 clean:
 	$(RM) $(ARCH) $(ARCH_ALL)
