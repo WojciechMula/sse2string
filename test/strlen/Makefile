@@ -1,7 +1,15 @@
 include ../Makefile.inc
 
-strlen: test.c
-	gcc -o strlen -L$(LIBPATH) -I$(INCPATH) test.c -l$(LIBNAME)
+strlen: test.c strlen_glibc.o
+	gcc -o strlen -L$(LIBPATH) -I$(INCPATH) test.c -l$(LIBNAME) strlen_glibc.o
+
+strlen_glibc.o: strlen_glibc.c
+	gcc -O2 -c strlen_glibc.c
+
+strlen_glibc.c:
+
+clean:
+	$(RM) stren strlen_glibc.o
 
 verify: strlen
 	sh verify.sh && touch verify
