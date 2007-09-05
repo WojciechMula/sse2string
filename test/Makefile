@@ -16,7 +16,7 @@ $(FUNCTIONS):
 results: results.tar.gz
 
 results.tar.gz: speedup plots
-	tar -czf $@ str*/*256 str*/*16k Makefile strncmp/16383 *.png
+	tar -czf $@ str*/*256 str*/*16k strncmp/16383 *.png
 
 PICS=strlena.png strlenb.png	\
      strchra.png strchrb.png	\
