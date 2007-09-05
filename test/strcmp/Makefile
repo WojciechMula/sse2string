@@ -10,6 +10,13 @@ OFFSETS=0 7 16 25
 RESULTS256=$(foreach o1,$(OFFSETS),$(foreach o2,$(OFFSETS),$(o1)-$(o2)-256))
 RESULTS16k=$(foreach o1,$(OFFSETS),$(foreach o2,$(OFFSETS),$(o1)-$(o2)-16k))
 
+clean:
+	$(RM) strcmp
+
+cleanresults:
+	for f in $(RESULTS256); do mv $$f $$f.bak; done
+	for f in $(RESULTS16k); do mv $$f $$f.bak; done
+
 speedup: strcmp $(RESULTS256) $(RESULTS16k)
 
 0-0-256:

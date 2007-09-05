@@ -9,7 +9,12 @@ verify: strncmp
 clean:
 	$(RM) strncmp
 
-speedup: strncmp 256 16383
+RESULTS=256 16383
+
+cleanresults:
+	for f in $(RESULTS); do mv $$f $$f.bak; done
+
+speedup: strncmp $(RESULTS)
 
 256:
 	sh measure-short.sh $@

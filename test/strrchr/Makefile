@@ -6,7 +6,15 @@ strrchr: test.c
 verify: strrchr
 	sh verify.sh && touch verify
 
-speedup: strrchr 0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
+clean:
+	$(RM) strrchr
+
+RESULTS=0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
+
+cleanresults:
+	for f in $(RESULTS); do mv $$f $$f.bak; done
+
+speedup: strrchr $(RESULTS)
 
 0-256:
 	sh measure-short.sh 0
