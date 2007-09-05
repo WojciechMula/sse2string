@@ -2,11 +2,11 @@
 
 help:
 	@echo arguments:
-	@echo * library - make library
-	@echo * speedup - test speedup of all functions
-	@echo * results - gather speedup results \& create plots
-	@echo * clean   - clean compiled files
-	@echo * cleanresults - just append .bak for all results files!
+	@echo \* library - make library
+	@echo \* speedup - test speedup of all functions
+	@echo \* results - gather speedup results \& create plots
+	@echo \* clean   - clean compiled files
+	@echo \* cleanresults - just append .bak for all results files!
 
 library:
 	$(MAKE) -C src
