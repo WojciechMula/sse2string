@@ -5,6 +5,8 @@
 #include <sse2string.h>
 #include "../timeit.c"
 
+size_t strlen_glibc(const char* s) __attribute__((pure));
+
 #define kB   *1024
 #define SIZE (16 kB)
 char buffer[SIZE] __attribute__((aligned(4 kB)));
@@ -41,13 +43,13 @@ int main(int argc, char* argv[]) {
 	
 	switch (fun) {
 		case 0:
-			TIMEIT(l1 = strlen(text))
+			TIMEIT(l1 = strlen_glibc(text))
 			break;
 		case 1:
 			TIMEIT(l2 = sse2_strlen(text))
 			break;
 		default:
-			l1 = strlen(text);
+			l1 = strlen_glibc(text);
 			l2 = sse2_strlen(text);
 			if (l1 != l2) {
 				printf("error: result is %d, should be %d\n", l2, l1); 
