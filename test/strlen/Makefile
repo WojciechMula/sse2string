@@ -14,7 +14,12 @@ clean:
 verify: strlen
 	sh verify.sh && touch verify
 
-speedup: strlen 0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
+RESULTS=0-256 7-256 16-256 25-256 0-16k 7-16k 16-16k 25-16k
+
+cleanresults:
+	for f in $(RESULTS); do mv $$f $$f.bak; done
+
+speedup: strlen $(RESULTS)
 
 0-256:
 	sh measure-short.sh 0
