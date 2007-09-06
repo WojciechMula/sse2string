@@ -11,10 +11,10 @@ help:
 library:
 	$(MAKE) -C src
 
-speedup:
+speedup: library
 	$(MAKE) speedup -C test
 
-results:
+results: speedup
 	$(MAKE) results -C test
 
 clean:
