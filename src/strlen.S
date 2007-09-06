@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strlen, strlen_unsafe
  *
- *  $Revision: 1.8 $, $Date: 2007-09-01 12:02:11 $
+ *  $Revision: 1.9 $, $Date: 2007-09-06 11:43:13 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,6 +11,7 @@
  *  License: BSD
  */
 
+.code32
 .text
 
 .macro  FIND_NULL16        # locate null byte(s) in a 16-byte chunk

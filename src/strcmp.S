@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strcmp, strcmp_unsafe
  *
- *  $Revision: 1.9 $, $Date: 2007-09-02 20:20:02 $
+ *  $Revision: 1.10 $, $Date: 2007-09-06 11:43:13 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,6 +11,7 @@
  *  License: BSD
  */
 
+.code32
 .text
 
 .macro  COMPARE16 load     # compare 16 bytes

@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strrchr, strrchr_unsafe
  *
- *  $Revision: 1.7 $, $Date: 2007-09-01 12:02:27 $
+ *  $Revision: 1.8 $, $Date: 2007-09-06 11:43:13 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,6 +11,7 @@
  *  License: BSD
  */
 
+.code32
 .text
 
 .macro  BASIC_STEP16       # process 16 bytes

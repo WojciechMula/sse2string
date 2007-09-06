@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of unsafe strncmp
  *
- *  $Revision: 1.6 $, $Date: 2007-09-04 09:36:17 $
+ *  $Revision: 1.7 $, $Date: 2007-09-06 11:43:13 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,6 +11,7 @@
  *  License: BSD
  */
 
+.code32
 .text
 
 .global sse2_strncmp_unsafe

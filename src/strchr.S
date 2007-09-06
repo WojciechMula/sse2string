@@ -2,7 +2,7 @@
  *  SSE2 string routines library
  *  implementation of strchr, strrchr_unsafe
  *
- *  $Revision: 1.12 $, $Date: 2007-09-01 12:01:52 $
+ *  $Revision: 1.13 $, $Date: 2007-09-06 11:43:13 $
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
@@ -11,6 +11,7 @@
  *  License: BSD
  */
 
+.code32
 .text
 
 .macro FIND_POSITION16 # locate null bytes or chars in a sequence of 16 bytes
