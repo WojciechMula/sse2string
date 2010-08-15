@@ -6,7 +6,7 @@
  *
  *  Author: Wojciech Mu³a
  *  e-mail: wojciech_mula@poczta.onet.pl
- *  project page: http://www.republika.pl/wmula/proj/sse2string/
+ *  project page: http://0x80.pl/proj/sse2string/
  *
  *  License: BSD
  */
